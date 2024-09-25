@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0://localhost/testdb
+    username: testuser
+    password: testpass
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+
+server:
+  port: 0

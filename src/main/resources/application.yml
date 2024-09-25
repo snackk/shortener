@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: shortener
+  datasource:
+    url: jdbc:mysql://localhost:3306/shortener
+    username: root
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+server:
+  port: 8080
