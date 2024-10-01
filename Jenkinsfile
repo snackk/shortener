@@ -30,17 +30,7 @@ pipeline {
             }
         }
 
-        stage('Package') {
-            steps {
-                sh "./mvnw package"
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            }
-        }
-
         stage('Increment and Create Tag') {
-            when {
-                branch 'main'
-            }
             steps {
                 script {
                     sh "git fetch --tags"
@@ -58,6 +48,14 @@ pipeline {
                         sh "git push ${repoUrl} v${env.NEW_TAG}"
                     }
                 }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh "./mvnw versions:set -DnewVersion=${env.NEW_TAG}-SNAPSHOT"
+                sh "./mvnw package"
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
 
