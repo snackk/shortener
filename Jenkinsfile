@@ -46,8 +46,8 @@ pipeline {
                         def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
                         def repoPath = scmUrl.replaceFirst(/^https:\/\/github.com\//, '').replaceFirst(/\.git$/, '')
                         def authenticatedUrl = "https://${GIT_TOKEN}@github.com/${repoPath}.git"
-                        echo "git push ${authenticatedUrl} v${env.NEW_TAG}"
-                        sh "git push ${authenticatedUrl} v${env.NEW_TAG}"
+                        echo "git push ${authenticatedUrl} ${env.NEW_TAG}"
+                        sh "git push ${authenticatedUrl} ${env.NEW_TAG}"
                     }
                 }
             }
@@ -55,7 +55,8 @@ pipeline {
 
         stage('Package') {
             steps {
-                sh "./mvnw versions:set -DnewVersion=${env.NEW_TAG}-SNAPSHOT"
+                def parsedVersion = env.NEW_TAG.replaceFirst('^v', '')
+                sh "./mvnw versions:set -DnewVersion=${parsedVersion}-SNAPSHOT"
                 sh "./mvnw package"
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
