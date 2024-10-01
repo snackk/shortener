@@ -46,6 +46,7 @@ pipeline {
                         def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
                         def repoPath = scmUrl.replaceFirst(/^https:\/\/github.com\//, '').replaceFirst(/\.git$/, '')
                         def authenticatedUrl = "https://${GIT_TOKEN}@github.com/${repoPath}.git"
+                        echo "git push ${authenticatedUrl} v${env.NEW_TAG}"
                         sh "git push ${authenticatedUrl} v${env.NEW_TAG}"
                     }
                 }
