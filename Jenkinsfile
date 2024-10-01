@@ -55,10 +55,12 @@ pipeline {
 
         stage('Package') {
             steps {
-                def parsedVersion = env.NEW_TAG.replaceFirst('^v', '')
-                sh "./mvnw versions:set -DnewVersion=${parsedVersion}-SNAPSHOT"
-                sh "./mvnw package"
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                script {
+                    def parsedVersion = env.NEW_TAG.replaceFirst('^v', '')
+                    sh "./mvnw versions:set -DnewVersion=${parsedVersion}-SNAPSHOT"
+                    sh "./mvnw package"
+                    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                }
             }
         }
 
