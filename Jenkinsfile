@@ -49,13 +49,12 @@ pipeline {
                     patch = patch.toInteger() + 1
                     env.NEW_TAG = "${major}.${minor}.${patch}"
                     echo "New tag will be: ${env.NEW_TAG}"
-                    withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh "git config user.email '${GIT_USERNAME}'"
+                    withCredentials([string(credentialsId: 'github', passwordVariable: 'GIT_USER', usernameVariable: 'GIT_USERNAME')]) {
+                        sh "git config user.email '${GIT_USER}'"
                         sh "git config user.name 'snackk'"
-                        sh "git tag -a v${env.NEW_TAG} -m 'Version ${env.NEW_TAG}'"
-                        def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
-                        def repoUrl = scmUrl.replaceFirst(/(https?:\/\/)/, "\$1${GIT_USERNAME}:${GIT_PASSWORD}@")
 
+                        def repoPath = scmUrl.replaceFirst(/^https:\/\/github.com\//, '').replaceFirst(/\.git$/, '')
+                        def authenticatedUrl = "https://${GITHUB_TOKEN}@github.com/${repoPath}.git"
                         sh "git push ${repoUrl} v${env.NEW_TAG}"
                     }
                 }
