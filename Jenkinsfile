@@ -41,7 +41,7 @@ pipeline {
                     echo "New tag will be: ${env.NEW_TAG}"
                     withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_TOKEN', usernameVariable: 'GIT_USER')]) {
                         sh "git config user.email '${GIT_USER}'"
-                        sh "git config user.name 'snackk'"
+                        sh "git config user.name 'Diogo Santos'"
 
                         def repoPath = scmUrl.replaceFirst(/^https:\/\/github.com\//, '').replaceFirst(/\.git$/, '')
                         def authenticatedUrl = "https://${GIT_TOKEN}@github.com/${repoPath}.git"
