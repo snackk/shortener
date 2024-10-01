@@ -39,7 +39,7 @@ pipeline {
                     patch = patch.toInteger() + 1
                     env.NEW_TAG = "${major}.${minor}.${patch}"
                     echo "New tag will be: ${env.NEW_TAG}"
-                    withCredentials([string(credentialsId: 'github', passwordVariable: 'GIT_USER', usernameVariable: 'GIT_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_USER', usernameVariable: 'GIT_USERNAME')]) {
                         sh "git config user.email '${GIT_USER}'"
                         sh "git config user.name 'snackk'"
 
