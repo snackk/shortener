@@ -41,7 +41,7 @@ pipeline {
 
                     def (major, minor, patch) = latestTag.replaceFirst('^v', '').tokenize('.')
                     if (!major || !minor || !patch) {
-                        error("Failed to parse version from latest git tag '${latestTag}'.")
+                        error(message: "Failed to parse version from latest git tag '${latestTag}'.")
                     }
                     patch = patch.toInteger() + 1
                     env.NEW_TAG = "v${major}.${minor}.${patch}"
@@ -87,8 +87,10 @@ pipeline {
 
         stage('Publish Docker') {
             steps {
-                docker.withRegistry('', 'snackk_docker') {
-                    sh "./mvnw jib:build"
+                script {
+                    docker.withRegistry('', 'snackk_docker') {
+                        sh "./mvnw jib:build"
+                    }
                 }
             }
         }
@@ -96,7 +98,9 @@ pipeline {
 
     post {
         always {
-            sh 'docker logout'
+            script {
+                sh 'docker logout'
+            }
         }
     }
 }
