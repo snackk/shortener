@@ -34,10 +34,17 @@ pipeline {
             steps {
                 script {
                     sh "git fetch --tags"
-                    def latestTag = sh(script: "git describe --tags `git rev-list --tags --max-count=1`", returnStdout: true).trim()
-                    def (major, minor, patch) = latestTag.tokenize('.')
+                    def latestTag = sh(
+                        script: "git describe --tags `git rev-list --tags --max-count=1`",
+                        returnStdout: true
+                    ).trim()
+
+                    def (major, minor, patch) = latestTag.replaceFirst('^v', '').tokenize('.')
+                    if (!major || !minor || !patch) {
+                        error("Failed to parse version from latest git tag '${latestTag}'.")
+                    }
                     patch = patch.toInteger() + 1
-                    env.NEW_TAG = "${major}.${minor}.${patch}"
+                    env.NEW_TAG = "v${major}.${minor}.${patch}"
                     echo "New tag will be: ${env.NEW_TAG}"
                     withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_TOKEN', usernameVariable: 'GIT_USER')]) {
                         sh "git config user.email '${GIT_USER}'"
@@ -46,8 +53,22 @@ pipeline {
                         def scmUrl = scm.getUserRemoteConfigs()[0].getUrl()
                         def repoPath = scmUrl.replaceFirst(/^https:\/\/github.com\//, '').replaceFirst(/\.git$/, '')
                         def authenticatedUrl = "https://${GIT_TOKEN}@github.com/${repoPath}.git"
-                        sh "git tag ${env.NEW_TAG}"
-                        sh "git push ${authenticatedUrl} ${env.NEW_TAG}"
+
+                        def tagExistsLocally = sh(
+                            script: "git tag -l ${env.NEW_TAG}",
+                            returnStdout: true
+                        ).trim()
+                        def tagExistsRemotely = sh(
+                            script: "git ls-remote --tags origin | grep -w 'refs/tags/${env.NEW_TAG}' || true",
+                            returnStdout: true
+                        ).trim()
+
+                        if (tagExistsLocally || tagExistsRemotely) {
+                            echo "Tag ${env.NEW_TAG} already exists. Skipping creation."
+                        } else {
+                            sh "git tag ${env.NEW_TAG}"
+                            sh "git push ${authenticatedUrl} ${env.NEW_TAG}"
+                        }
                     }
                 }
             }
