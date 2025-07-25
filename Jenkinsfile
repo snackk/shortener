@@ -87,14 +87,11 @@ pipeline {
 
         stage('Publish Docker') {
             steps {
-                script {
-                    docker.withRegistry('', 'snackk_docker') {
-                        sh "./mvnw jib:build"
-                    }
+                docker.withRegistry('', 'snackk_docker') {
+                    sh "./mvnw jib:build"
                 }
             }
         }
-    }
 
     post {
         always {
